@@ -9,7 +9,7 @@ pipeline {
     stage('Build') {
       agent {
         docker {
-          image 'docker.io/controlplane/gcloud-sdk:latest'
+          image 'docker.io/controlplane/gcloud-sdk:latest',
           args '-v /var/run/docker.sock:/var/run/docker.sock ' +
             '--user=root ' +
             '--cap-drop=ALL ' +
@@ -28,7 +28,7 @@ pipeline {
     stage('Push') {
       agent {
         docker {
-          image 'docker.io/controlplane/gcloud-sdk:latest'
+          image 'docker.io/controlplane/gcloud-sdk:latest',
           args '-v /var/run/docker.sock:/var/run/docker.sock ' +
             '--user=root ' +
             '--cap-drop=ALL ' +
