@@ -43,8 +43,8 @@ pipeline {
       steps {
         ansiColor('xterm') {
           sh 'docker login ' +
-            '--username controlplane" ' +
-            '--password=${DOCKER_HUB_PASSWORD}'
+            '--username "controlplane" ' +
+            '--password "${DOCKER_HUB_PASSWORD}"'
           sh 'make push CONTAINER_TAG="${CONTAINER_TAG}"'
         }
       }
