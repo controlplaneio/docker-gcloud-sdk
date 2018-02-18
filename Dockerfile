@@ -1,3 +1,5 @@
+FROM docker:17.09.0-ce as static-docker-source
+
 FROM google/cloud-sdk:slim
 
 RUN \
@@ -15,3 +17,10 @@ RUN \
   \
   && curl https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -Lo /usr/local/bin/jq \
   && chmod +x /usr/local/bin/jq
+
+COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
+
+RUN \
+    gcloud --version \
+    && docker --version \
+    && kubectl version --client
