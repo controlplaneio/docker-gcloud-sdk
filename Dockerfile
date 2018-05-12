@@ -14,6 +14,7 @@ RUN \
       gettext-base \
       git \
       gnupg \
+      golang \
       lsb-release \
       make \
       nmap \

@@ -18,10 +18,10 @@ CONTAINER_NAME := $(REGISTRY)/$(NAME):$(CONTAINER_TAG)
 
 export NAME REGISTRY BUILD_DATE GIT_MESSAGE GIT_SHA GIT_TAG CONTAINER_TAG CONTAINER_NAME
 
-.PHONY: all test
+.PHONY: all build push run help
 .SILENT:
 
-all:
+all: help
 
 .PHONY: build
 build: ## builds a docker image
