@@ -2,6 +2,7 @@ pipeline {
   agent none
 
   environment {
+    ENVIRONMENT = 'ops'
     CONTAINER_TAG = 'latest'
   }
 
@@ -37,15 +38,19 @@ pipeline {
       }
 
       environment {
-        DOCKER_HUB_PASSWORD = credentials('docker-hub-controlplane')
+        DOCKER_REGISTRY_CREDENTIALS = credentials("${ENVIRONMENT}_docker_credentials")
       }
 
       steps {
         ansiColor('xterm') {
-          sh 'docker login ' +
-            '--username "controlplane" ' +
-            '--password "${DOCKER_HUB_PASSWORD}"'
-          sh 'make push CONTAINER_TAG="${CONTAINER_TAG}"'
+          sh """
+            echo '${DOCKER_REGISTRY_CREDENTIALS_PSW}' \
+            | docker login \
+              --username '${DOCKER_REGISTRY_CREDENTIALS_USR}' \
+              --password-stdin
+
+            make push CONTAINER_TAG='${CONTAINER_TAG}'
+          """
         }
       }
     }
