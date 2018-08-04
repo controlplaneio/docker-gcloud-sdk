@@ -1,4 +1,4 @@
-FROM docker:17.12.0-ce as static-docker-source
+FROM docker:17.12.0-ce AS static-docker-source
 
 FROM debian:buster
 
@@ -15,12 +15,14 @@ RUN \
       git \
       gnupg \
       golang \
+      jq \
       lsb-release \
       make \
       nmap \
       openssh-client \
       parallel \
       wget \
+      xmlstarlet \
   \
   && export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" \
   && echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" > /etc/apt/sources.list.d/google-cloud-sdk.list \
