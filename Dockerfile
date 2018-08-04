@@ -19,6 +19,7 @@ RUN \
       lsb-release \
       make \
       nmap \
+      nmap-common \
       openssh-client \
       parallel \
       wget \
