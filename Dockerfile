@@ -15,7 +15,6 @@ RUN \
       git \
       gnupg \
       golang \
-      jq \
       lsb-release \
       make \
       nmap \
