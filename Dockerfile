@@ -15,7 +15,6 @@ RUN \
       git \
       gnupg \
       golang \
-      jq \
       lsb-release \
       make \
       nmap \
@@ -38,6 +37,9 @@ RUN \
   \
   && curl https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 -Lo /usr/local/bin/jq \
   && chmod +x /usr/local/bin/jq \
+  \
+  && curl https://github.com/mikefarah/yq/releases/download/2.1.1/yq_linux_amd64 -Lo /usr/local/bin/yq \
+  && chmod +x /usr/local/bin/yq \
   \
    && \
   gcloud config set core/disable_usage_reporting true && \
