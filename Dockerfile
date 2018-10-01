@@ -41,6 +41,9 @@ RUN \
   && curl https://github.com/mikefarah/yq/releases/download/2.1.1/yq_linux_amd64 -Lo /usr/local/bin/yq \
   && chmod +x /usr/local/bin/yq \
   \
+  && curl https://github.com/kubernetes-sigs/kustomize/releases/download/v1.0.8/kustomize_1.0.8_linux_amd64 -Lo /usr/local/bin/kustomize \
+  && chmod +x /usr/local/bin/kustomize \
+  \
    && \
   gcloud config set core/disable_usage_reporting true && \
   gcloud config set component_manager/disable_update_check true && \
