@@ -47,7 +47,9 @@ RUN \
    && \
   gcloud config set core/disable_usage_reporting true && \
   gcloud config set component_manager/disable_update_check true && \
-  gcloud config set metrics/environment github_docker_image
+  gcloud config set metrics/environment github_docker_image && \
+  ssh-keyscan -H github.com gitlab.com bitbucket.org >> /etc/ssh/ssh_known_hosts && \
+  useradd -ms /bin/bash jenkins
 
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 
