@@ -24,7 +24,8 @@ RUN \
       wget \
       xmlstarlet \
   \
-  && export CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" \
+  && export CLOUD_SDK_REPO \
+  && CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)" \
   && echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" > /etc/apt/sources.list.d/google-cloud-sdk.list \
   && bash -euxo pipefail -c "curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - " \
   \
@@ -50,6 +51,11 @@ RUN \
   gcloud config set metrics/environment github_docker_image && \
   ssh-keyscan -H github.com gitlab.com bitbucket.org >> /etc/ssh/ssh_known_hosts && \
   useradd -ms /bin/bash jenkins
+
+RUN cd /opt/ \
+      && git clone https://github.com/bats-core/bats-core.git \
+      && cd bats-core \
+      && ./install.sh /usr/local
 
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 
