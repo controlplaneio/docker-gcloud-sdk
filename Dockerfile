@@ -55,7 +55,7 @@ RUN \
 RUN cd /opt/ \
       && git clone https://github.com/bats-core/bats-core.git \
       && cd bats-core \
-      && git checkout v1.1.0
+      && git checkout v1.1.0 \
       && ./install.sh /usr/local
 
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
