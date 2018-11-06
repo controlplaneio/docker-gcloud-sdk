@@ -53,10 +53,17 @@ RUN \
   useradd -ms /bin/bash jenkins
 
 RUN cd /opt/ \
-      && git clone https://github.com/bats-core/bats-core.git \
-      && cd bats-core \
-      && git checkout v1.1.0 \
-      && ./install.sh /usr/local
+  && git clone https://github.com/bats-core/bats-core.git \
+  && cd bats-core \
+  && git checkout v1.1.0 \
+  && ./install.sh /usr/local
+
+SHELL ["/bin/bash", "-c"]
+RUN set -euxo pipefail; cd /opt/ \
+  && curl -L https://github.com/github/hub/releases/download/v2.6.0/hub-linux-amd64-2.6.0.tgz \
+  | tar xzvf - \
+  && ./hub-linux-amd64-*/install \
+  && hub --version
 
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 
