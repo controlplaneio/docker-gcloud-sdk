@@ -58,6 +58,12 @@ RUN cd /opt/ \
   && git checkout v1.1.0 \
   && ./install.sh /usr/local
 
+RUN cd $(mktemp -d) \
+  && curl -sL https://github.com/digitalocean/doctl/releases/download/v1.13.0/doctl-1.13.0-linux-amd64.tar.gz \
+    | tar -xzv \
+  && mv doctl /usr/local/bin/ \
+  && doctl version
+
 SHELL ["/bin/bash", "-c"]
 RUN set -euxo pipefail; cd /opt/ \
   && curl -L https://github.com/github/hub/releases/download/v2.6.0/hub-linux-amd64-2.6.0.tgz \
