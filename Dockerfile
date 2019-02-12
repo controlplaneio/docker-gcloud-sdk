@@ -1,4 +1,4 @@
-FROM docker:17.12.0-ce AS static-docker-source
+FROM docker:18.09.2 AS static-docker-source
 
 FROM debian:buster
 
