@@ -42,7 +42,7 @@ RUN \
   && curl https://github.com/mikefarah/yq/releases/download/2.1.1/yq_linux_amd64 -Lo /usr/local/bin/yq \
   && chmod +x /usr/local/bin/yq \
   \
-  && curl https://github.com/kubernetes-sigs/kustomize/releases/download/v1.0.8/kustomize_1.0.8_linux_amd64 -Lo /usr/local/bin/kustomize \
+  && curl https://github.com/kubernetes-sigs/kustomize/releases/download/v2.0.2/kustomize_2.0.2_linux_amd64 -Lo /usr/local/bin/kustomize \
   && chmod +x /usr/local/bin/kustomize \
   \
    && \
