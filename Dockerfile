@@ -71,11 +71,15 @@ RUN set -euxo pipefail; cd /opt/ \
   && ./hub-linux-amd64-*/install \
   && hub --version
 
-RUN curl -o /bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.11.5/2018-12-06/bin/linux/amd64/aws-iam-authenticator \
-  && chmod +x /bin/aws-iam-authenticator
+RUN curl -o /usr/local/bin/aws-iam-authenticator \
+    https://amazon-eks.s3-us-west-2.amazonaws.com/1.11.5/2018-12-06/bin/linux/amd64/aws-iam-authenticator \
+  && chmod +x /usr/local/bin/aws-iam-authenticator \
+  && aws-iam-authenticator help
 
-RUN curl -Lo /bin/notary https://github.com/theupdateframework/notary/releases/download/v0.6.1/notary-Linux-amd64 \
-  && chmod +x /bin/notary
+RUN curl -Lo /usr/local/bin/notary \
+    https://github.com/theupdateframework/notary/releases/download/v0.6.1/notary-Linux-amd64 \
+  && chmod +x /usr/local/bin/notary \
+  && notary help
 
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 
