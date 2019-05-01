@@ -8,6 +8,7 @@ RUN \
   DEBIAN_FRONTEND=noninteractive \
     apt update && apt install --assume-yes --no-install-recommends \
       apt-transport-https \
+      awscli \
       bzip2 \
       ca-certificates \
       curl \
