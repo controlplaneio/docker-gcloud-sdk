@@ -22,6 +22,7 @@ RUN \
       nmap-common \
       openssh-client \
       parallel \
+      postgresql-client \
       wget \
       xmlstarlet \
   \
