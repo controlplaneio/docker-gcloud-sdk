@@ -83,6 +83,10 @@ RUN curl -Lo /usr/local/bin/notary \
   && chmod +x /usr/local/bin/notary \
   && notary help
 
+RUN curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" \
+      -o /usr/local/bin/docker-compose \
+    && chmod +x /usr/local/bin/docker-compose
+
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 
 RUN \
