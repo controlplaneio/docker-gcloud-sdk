@@ -20,6 +20,7 @@ RUN \
       make \
       nmap \
       nmap-common \
+      ncat \
       openssh-client \
       parallel \
       postgresql-client \
