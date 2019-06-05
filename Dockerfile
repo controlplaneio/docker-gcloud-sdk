@@ -24,6 +24,7 @@ RUN \
       openssh-client \
       parallel \
       postgresql-client \
+      rsync \
       wget \
       xmlstarlet \
   \
