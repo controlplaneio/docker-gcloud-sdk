@@ -12,6 +12,8 @@ RUN \
       bzip2 \
       ca-certificates \
       curl \
+      dnsutils \
+      gawk \
       gettext-base \
       git \
       gnupg \
