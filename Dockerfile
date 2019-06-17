@@ -54,9 +54,8 @@ RUN \
 
 RUN cd /opt/ \
   && git clone https://github.com/bats-core/bats-core.git \
-  && cd bats-core \
-  && git checkout v1.1.0 \
-  && ./install.sh /usr/local
+  && cd bats-core/ \
+  && install -m 755 "libexec/bats-core"/* "/usr/local/bin"
 
 RUN cd $(mktemp -d) \
   && curl -sL https://github.com/digitalocean/doctl/releases/download/v1.13.0/doctl-1.13.0-linux-amd64.tar.gz \
@@ -70,6 +69,9 @@ RUN set -euxo pipefail; cd /opt/ \
   | tar xzvf - \
   && ./hub-linux-amd64-*/install \
   && hub --version
+
+RUN curl -o /bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.11.5/2018-12-06/bin/linux/amd64/aws-iam-authenticator \
+  && chmod +x /bin/aws-iam-authenticator
 
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 
