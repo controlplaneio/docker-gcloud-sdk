@@ -8,6 +8,7 @@ RUN \
   DEBIAN_FRONTEND=noninteractive \
     apt update && apt install --assume-yes --no-install-recommends \
       apt-transport-https \
+      awscli \
       bzip2 \
       ca-certificates \
       curl \
@@ -19,8 +20,11 @@ RUN \
       make \
       nmap \
       nmap-common \
+      ncat \
       openssh-client \
       parallel \
+      postgresql-client \
+      rsync \
       wget \
       xmlstarlet \
   \
@@ -42,7 +46,7 @@ RUN \
   && curl https://github.com/mikefarah/yq/releases/download/2.1.1/yq_linux_amd64 -Lo /usr/local/bin/yq \
   && chmod +x /usr/local/bin/yq \
   \
-  && curl https://github.com/kubernetes-sigs/kustomize/releases/download/v1.0.8/kustomize_1.0.8_linux_amd64 -Lo /usr/local/bin/kustomize \
+  && curl https://github.com/kubernetes-sigs/kustomize/releases/download/v2.0.2/kustomize_2.0.2_linux_amd64 -Lo /usr/local/bin/kustomize \
   && chmod +x /usr/local/bin/kustomize \
   \
    && \
@@ -70,8 +74,20 @@ RUN set -euxo pipefail; cd /opt/ \
   && ./hub-linux-amd64-*/install \
   && hub --version
 
-RUN curl -o /bin/aws-iam-authenticator https://amazon-eks.s3-us-west-2.amazonaws.com/1.11.5/2018-12-06/bin/linux/amd64/aws-iam-authenticator \
-  && chmod +x /bin/aws-iam-authenticator
+RUN curl -o /usr/local/bin/aws-iam-authenticator \
+    https://amazon-eks.s3-us-west-2.amazonaws.com/1.11.5/2018-12-06/bin/linux/amd64/aws-iam-authenticator \
+  && chmod +x /usr/local/bin/aws-iam-authenticator \
+  && aws-iam-authenticator help
+
+RUN curl -Lo /usr/local/bin/notary \
+    https://github.com/theupdateframework/notary/releases/download/v0.6.1/notary-Linux-amd64 \
+  && chmod +x /usr/local/bin/notary \
+  && notary help
+
+RUN curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" \
+      -o /usr/local/bin/docker-compose \
+    && chmod +x /usr/local/bin/docker-compose \
+    && docker-compose version
 
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 
