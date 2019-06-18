@@ -19,6 +19,7 @@ RUN \
       gnupg \
       golang \
       lsb-release \
+      lsof \
       make \
       nmap \
       nmap-common \
