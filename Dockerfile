@@ -66,6 +66,7 @@ RUN cd /opt/ \
   && git checkout 8789f910812afbf6b87dd371ee5ae30592f1423f \
   && ./install.sh /usr/local
 
+# doctl (Digital Ocean CLI)
 RUN cd $(mktemp -d) \
   && curl -sL https://github.com/digitalocean/doctl/releases/download/v1.13.0/doctl-1.13.0-linux-amd64.tar.gz \
     | tar -xzv \
@@ -73,26 +74,42 @@ RUN cd $(mktemp -d) \
   && doctl version
 
 SHELL ["/bin/bash", "-c"]
+# github hub (git subcmomand for PR workflows)
 RUN set -euxo pipefail; cd /opt/ \
   && curl -L https://github.com/github/hub/releases/download/v2.6.0/hub-linux-amd64-2.6.0.tgz \
   | tar xzvf - \
   && ./hub-linux-amd64-*/install \
   && hub --version
 
+# AWS IAM authenticator for EKS
 RUN curl -o /usr/local/bin/aws-iam-authenticator \
     https://amazon-eks.s3-us-west-2.amazonaws.com/1.11.5/2018-12-06/bin/linux/amd64/aws-iam-authenticator \
   && chmod +x /usr/local/bin/aws-iam-authenticator \
   && aws-iam-authenticator help
 
+# notary
 RUN curl -Lo /usr/local/bin/notary \
     https://github.com/theupdateframework/notary/releases/download/v0.6.1/notary-Linux-amd64 \
   && chmod +x /usr/local/bin/notary \
   && notary help
 
+# docker-compose
 RUN curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" \
       -o /usr/local/bin/docker-compose \
     && chmod +x /usr/local/bin/docker-compose \
     && docker-compose version
+
+# goss
+RUN curl -Lo /usr/local/bin/goss \
+    https://github.com/aelsabbahy/goss/releases/download/v0.3.7/goss-linux-amd64 \
+  && chmod +x /usr/local/bin/goss \
+  && goss help
+
+# conftest
+RUN wget https://github.com/instrumenta/conftest/releases/download/v0.4.2/conftest_0.4.2_Linux_x86_64.tar.gz \
+  && tar xzf conftest_0.4.2_Linux_x86_64.tar.gz \
+  && mv conftest /usr/local/bin \
+  && conftest --version
 
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 
