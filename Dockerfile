@@ -59,10 +59,12 @@ RUN \
   ssh-keyscan -H github.com gitlab.com bitbucket.org >> /etc/ssh/ssh_known_hosts && \
   useradd -ms /bin/bash jenkins
 
+# bats-core
 RUN cd /opt/ \
   && git clone https://github.com/bats-core/bats-core.git \
   && cd bats-core/ \
-  && install -m 755 "libexec/bats-core"/* "/usr/local/bin"
+  && git checkout 8789f910812afbf6b87dd371ee5ae30592f1423f \
+  && ./install.sh /usr/local
 
 RUN cd $(mktemp -d) \
   && curl -sL https://github.com/digitalocean/doctl/releases/download/v1.13.0/doctl-1.13.0-linux-amd64.tar.gz \
