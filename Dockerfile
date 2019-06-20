@@ -1,5 +1,17 @@
 FROM docker:18.09.2 AS static-docker-source
 
+FROM golang:1.12 AS builder
+
+RUN env | grep GO
+
+RUN go get github.com/evilsocket/dirsearch \
+  && cd src/github.com/evilsocket/dirsearch && ls -lasp \
+  && make get_glide \
+  && make install_dependencies \
+  && make build \
+  && pwd && ls -lasp build/linux_x64/dirsearch
+
+# ---
 FROM debian:buster
 
 ENV CLOUD_SDK_VERSION 189.0.0
@@ -92,6 +104,7 @@ RUN curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-c
     && chmod +x /usr/local/bin/docker-compose \
     && docker-compose version
 
+COPY --from=builder /go/src/github.com/evilsocket/dirsearch/build/linux_x64/dirsearch /usr/local/bin/dirsearch
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 
 RUN \
