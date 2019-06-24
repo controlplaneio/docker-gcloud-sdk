@@ -1,17 +1,15 @@
 FROM docker:18.09.2 AS static-docker-source
 
+# ---
+
 FROM golang:1.12 AS builder
 
-RUN env | grep GO
-
-RUN go get github.com/evilsocket/dirsearch \
-  && cd src/github.com/evilsocket/dirsearch && ls -lasp \
-  && make get_glide \
-  && make install_dependencies \
-  && make build \
-  && pwd && ls -lasp build/linux_x64/dirsearch
+RUN go get github.com/OJ/gobuster
+WORKDIR /go/src/github.com/OJ/gobuster
+RUN make linux
 
 # ---
+
 FROM debian:buster
 
 ENV CLOUD_SDK_VERSION 189.0.0
@@ -76,7 +74,8 @@ RUN cd /opt/ \
   && git clone https://github.com/bats-core/bats-core.git \
   && cd bats-core/ \
   && git checkout 8789f910812afbf6b87dd371ee5ae30592f1423f \
-  && ./install.sh /usr/local
+  && ./install.sh /usr/local \
+  && bats --version
 
 # doctl (Digital Ocean CLI)
 RUN cd $(mktemp -d) \
@@ -85,7 +84,9 @@ RUN cd $(mktemp -d) \
   && mv doctl /usr/local/bin/ \
   && doctl version
 
+# bash 4 required for `pipefail`
 SHELL ["/bin/bash", "-c"]
+
 # github hub (git subcmomand for PR workflows)
 RUN set -euxo pipefail; cd /opt/ \
   && curl -L https://github.com/github/hub/releases/download/v2.6.0/hub-linux-amd64-2.6.0.tgz \
@@ -123,8 +124,11 @@ RUN wget https://github.com/instrumenta/conftest/releases/download/v0.4.2/confte
   && mv conftest /usr/local/bin \
   && conftest --version
 
-COPY --from=builder /go/src/github.com/evilsocket/dirsearch/build/linux_x64/dirsearch /usr/local/bin/dirsearch
+# docker
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
+
+# gobuster
+COPY --from=builder /go/src/github.com/OJ/gobuster/build/gobuster-linux-amd64/gobuster /usr/local/bin/
 
 RUN \
     gcloud --version \
