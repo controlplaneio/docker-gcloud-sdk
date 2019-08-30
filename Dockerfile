@@ -23,10 +23,7 @@ RUN apt-get update                                                              
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     bash                                                                         \
     ca-certificates                                                              \
-    curl                                                                         \
-    git                                                                          \
-    unzip                                                                        \
-    wget
+    curl
 
 # bash 4 required for `pipefail`
 SHELL ["/bin/bash", "-c"]
@@ -35,46 +32,44 @@ WORKDIR /downloads
 
 # Install doctl (Digital Ocean CLI)
 ARG DOCTL_VERSION=1.13.0
-RUN cd $(mktemp -d)           \
-  && curl -sL https://github.com/digitalocean/doctl/releases/download/v${DOCTL_VERSION}/doctl-${DOCTL_VERSION}-linux-amd64.tar.gz \
-    | tar -xzv                \
+RUN set -euxo pipefail; curl -sL "https://github.com/digitalocean/doctl/releases/download/v${DOCTL_VERSION}/doctl-${DOCTL_VERSION}-linux-amd64.tar.gz" \
+    | tar -xz                                                                                                                                          \
   && mv doctl /dependencies/
 
 # Install github hub
 ARG HUB_VERSION=2.6.0
-RUN set -euxo pipefail; cd /opt/ \
-  && curl -L https://github.com/github/hub/releases/download/v${HUB_VERSION}/hub-linux-amd64-${HUB_VERSION}.tgz \
-  | tar xzvf -                   \
+RUN set -euxo pipefail; curl -sL "https://github.com/github/hub/releases/download/v${HUB_VERSION}/hub-linux-amd64-${HUB_VERSION}.tgz" \
+  | tar -xz                                                                                                                           \
   && mv ./hub-linux-amd64-*/bin/hub /dependencies/
 
 # Install AWS IAM authenticator for EKS
 ARG AWS_AUTHENTICATOR_VERSION=1.11.5
-RUN curl -o /dependencies/aws-iam-authenticator   \
-    https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_AUTHENTICATOR_VERSION}/2018-12-06/bin/linux/amd64/aws-iam-authenticator \
+RUN curl -sLo /dependencies/aws-iam-authenticator                                                                                 \
+    "https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_AUTHENTICATOR_VERSION}/2018-12-06/bin/linux/amd64/aws-iam-authenticator" \
   && chmod +x /dependencies/aws-iam-authenticator
 
 # Install notary
 ARG NOTARY_VERSION=0.6.1
-RUN curl -Lo /dependencies/notary                                                           \
-    https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64 \
+RUN curl -sLo /dependencies/notary                                                                         \
+    "https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64" \
   && chmod +x /dependencies/notary
 
 # Install docker-compose
 ARG DOCKER_COMPOSE_VERSION=1.24.0
-RUN curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" \
-      -o /dependencies/docker-compose        \
+RUN curl -sLo /dependencies/docker-compose                                                                                 \
+    "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" \
     && chmod +x /dependencies/docker-compose
 
 # Install goss
 ARG GOSS_VERSION=0.3.7
-RUN curl -Lo /dependencies/goss                                                 \
-    https://github.com/aelsabbahy/goss/releases/download/v${GOSS_VERSION}/goss-linux-amd64 \
+RUN curl -sLo /dependencies/goss                                                             \
+    "https://github.com/aelsabbahy/goss/releases/download/v${GOSS_VERSION}/goss-linux-amd64" \
   && chmod +x /dependencies/goss
 
 # Install conftest
 ARG CONFTEST_VERSION=0.4.2
-RUN wget https://github.com/instrumenta/conftest/releases/download/v0.4.2/conftest_0.4.2_Linux_x86_64.tar.gz \
-  && tar xzf conftest_0.4.2_Linux_x86_64.tar.gz \
+RUN set -euxo pipefail; curl -sL "https://github.com/instrumenta/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" \
+  | tar -xz                                                                                                                                                        \
   && mv conftest /dependencies/
 
 #--------------------------#
