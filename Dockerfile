@@ -15,9 +15,71 @@ WORKDIR /go/src/github.com/OJ/gobuster
 RUN make linux
 
 #--------------------------#
+# Dependencies             #
+#--------------------------#
+FROM debian:buster-slim AS dependencies
+
+RUN apt-get update                                                               \
+    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    bash                                                                         \
+    ca-certificates                                                              \
+    curl                                                                         \
+    git                                                                          \
+    unzip                                                                        \
+    wget
+
+# bash 4 required for `pipefail`
+SHELL ["/bin/bash", "-c"]
+RUN mkdir /dependencies /downloads
+WORKDIR /downloads
+
+# Install doctl (Digital Ocean CLI)
+ARG DOCTL_VERSION=1.13.0
+RUN cd $(mktemp -d)           \
+  && curl -sL https://github.com/digitalocean/doctl/releases/download/v${DOCTL_VERSION}/doctl-${DOCTL_VERSION}-linux-amd64.tar.gz \
+    | tar -xzv                \
+  && mv doctl /dependencies/
+
+# Install github hub
+ARG HUB_VERSION=2.6.0
+RUN set -euxo pipefail; cd /opt/ \
+  && curl -L https://github.com/github/hub/releases/download/v${HUB_VERSION}/hub-linux-amd64-${HUB_VERSION}.tgz \
+  | tar xzvf -                   \
+  && mv ./hub-linux-amd64-*/bin/hub /dependencies/
+
+# Install AWS IAM authenticator for EKS
+ARG AWS_AUTHENTICATOR_VERSION=1.11.5
+RUN curl -o /dependencies/aws-iam-authenticator   \
+    https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_AUTHENTICATOR_VERSION}/2018-12-06/bin/linux/amd64/aws-iam-authenticator \
+  && chmod +x /dependencies/aws-iam-authenticator
+
+# Install notary
+ARG NOTARY_VERSION=0.6.1
+RUN curl -Lo /dependencies/notary                                                           \
+    https://github.com/theupdateframework/notary/releases/download/v${NOTARY_VERSION}/notary-Linux-amd64 \
+  && chmod +x /dependencies/notary
+
+# Install docker-compose
+ARG DOCKER_COMPOSE_VERSION=1.24.0
+RUN curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" \
+      -o /dependencies/docker-compose        \
+    && chmod +x /dependencies/docker-compose
+
+# Install goss
+ARG GOSS_VERSION=0.3.7
+RUN curl -Lo /dependencies/goss                                                 \
+    https://github.com/aelsabbahy/goss/releases/download/v${GOSS_VERSION}/goss-linux-amd64 \
+  && chmod +x /dependencies/goss
+
+# Install conftest
+ARG CONFTEST_VERSION=0.4.2
+RUN wget https://github.com/instrumenta/conftest/releases/download/v0.4.2/conftest_0.4.2_Linux_x86_64.tar.gz \
+  && tar xzf conftest_0.4.2_Linux_x86_64.tar.gz \
+  && mv conftest /dependencies/
+
+#--------------------------#
 # docker-gcloud-sdk        #
 #--------------------------#
-
 FROM debian:buster AS docker-gcloud-sdk
 
 ENV CLOUD_SDK_VERSION 189.0.0
@@ -75,67 +137,33 @@ RUN apt-get update                                                              
   && ssh-keyscan -H github.com gitlab.com bitbucket.org >> /etc/ssh/ssh_known_hosts \
   && useradd -u 1000 -ms /bin/bash jenkins
 
-# bats-core
+# Install bats-core
+ARG BATS_SHA=8789f910812afbf6b87dd371ee5ae30592f1423f
 RUN cd /opt/                                               \
   && git clone https://github.com/bats-core/bats-core.git  \
   && cd bats-core/                                         \
-  && git checkout 8789f910812afbf6b87dd371ee5ae30592f1423f \
-  && ./install.sh /usr/local                               \
-  && bats --version
+  && git checkout ${BATS_SHA}                              \
+  && ./install.sh /usr/local
 
-# doctl (Digital Ocean CLI)
-RUN cd $(mktemp -d)           \
-  && curl -sL https://github.com/digitalocean/doctl/releases/download/v1.13.0/doctl-1.13.0-linux-amd64.tar.gz \
-    | tar -xzv                \
-  && mv doctl /usr/local/bin/ \
-  && doctl version
+# Copy binaries from dependencies
+COPY --from=dependencies /dependencies/* /usr/local/bin/
 
-# bash 4 required for `pipefail`
-SHELL ["/bin/bash", "-c"]
-
-# github hub (git subcmomand for PR workflows)
-RUN set -euxo pipefail; cd /opt/ \
-  && curl -L https://github.com/github/hub/releases/download/v2.6.0/hub-linux-amd64-2.6.0.tgz \
-  | tar xzvf -                   \
-  && ./hub-linux-amd64-*/install \
-  && hub --version
-
-# AWS IAM authenticator for EKS
-RUN curl -o /usr/local/bin/aws-iam-authenticator   \
-    https://amazon-eks.s3-us-west-2.amazonaws.com/1.11.5/2018-12-06/bin/linux/amd64/aws-iam-authenticator \
-  && chmod +x /usr/local/bin/aws-iam-authenticator \
-  && aws-iam-authenticator help
-
-# notary
-RUN curl -Lo /usr/local/bin/notary  \
-    https://github.com/theupdateframework/notary/releases/download/v0.6.1/notary-Linux-amd64 \
-  && chmod +x /usr/local/bin/notary \
-  && notary help
-
-# docker-compose
-RUN curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" \
-      -o /usr/local/bin/docker-compose        \
-    && chmod +x /usr/local/bin/docker-compose \
-    && docker-compose version
-
-# goss
-RUN curl -Lo /usr/local/bin/goss  \
-    https://github.com/aelsabbahy/goss/releases/download/v0.3.7/goss-linux-amd64 \
-  && chmod +x /usr/local/bin/goss \
-  && goss help
-
-# conftest
-RUN wget https://github.com/instrumenta/conftest/releases/download/v0.4.2/conftest_0.4.2_Linux_x86_64.tar.gz \
-  && tar xzf conftest_0.4.2_Linux_x86_64.tar.gz \
-  && mv conftest /usr/local/bin                 \
-  && conftest --version
-
-# docker
+# Copy docker
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 
-# gobuster
+# Copy built gobuster
 COPY --from=builder /go/src/github.com/OJ/gobuster/build/gobuster-linux-amd64/gobuster /usr/local/bin/
 
-RUN gcloud --version    \
-    && docker --version \
-    && kubectl version --client
+# Print versions of all installed tools
+RUN gcloud --version                \
+    && docker --version             \
+    && kubectl version --client     \
+    && bats --version               \
+    && doctl version                \
+    && hub --version                \
+    && aws-iam-authenticator --help \
+    && notary help                  \
+    && docker-compose version       \
+    && goss help                    \
+    && conftest --version
+
