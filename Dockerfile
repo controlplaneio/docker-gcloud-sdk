@@ -67,7 +67,7 @@ RUN \
   gcloud config set component_manager/disable_update_check true && \
   gcloud config set metrics/environment github_docker_image && \
   ssh-keyscan -H github.com gitlab.com bitbucket.org >> /etc/ssh/ssh_known_hosts && \
-  useradd -ms /bin/bash jenkins
+  useradd -u 1000 -ms /bin/bash jenkins
 
 # bats-core
 RUN cd /opt/ \
