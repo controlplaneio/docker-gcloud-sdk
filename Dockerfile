@@ -93,7 +93,7 @@ RUN curl -sLo /dependencies/kustomize                                           
 #--------------------------#
 # docker-gcloud-sdk        #
 #--------------------------#
-FROM debian:buster AS docker-gcloud-sdk
+FROM debian:buster-slim AS docker-gcloud-sdk
 
 ENV CLOUD_SDK_VERSION 189.0.0
 
