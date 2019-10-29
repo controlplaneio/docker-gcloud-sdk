@@ -19,10 +19,9 @@ RUN make linux
 #--------------------------#
 FROM debian:buster-slim AS dependencies
 
-RUN apt-get update                                                               \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    bash                                                                         \
-    ca-certificates                                                              \
+RUN DEBIAN_FRONTEND=noninteractive apt update && apt install --assume-yes --no-install-recommends \
+    bash                                                                                          \
+    ca-certificates                                                                               \
     curl
 
 # bash 4 required for `pipefail`
@@ -97,8 +96,8 @@ FROM debian:buster-slim AS docker-gcloud-sdk
 
 ENV CLOUD_SDK_VERSION 189.0.0
 
-RUN apt-get update                                                               \
-    && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+RUN DEBIAN_FRONTEND=noninteractive apt update &&                                 \
+      apt install --assume-yes --no-install-recommends                           \
       apt-transport-https                                                        \
       awscli                                                                     \
       bash                                                                       \
