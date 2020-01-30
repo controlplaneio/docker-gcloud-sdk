@@ -85,9 +85,14 @@ RUN curl -sLo /dependencies/yq                                                  
 
 # Install kustomize
 ARG KUSTOMIZE_VERSION=2.0.2
-RUN curl -sLo /dependencies/kustomize                                                                   \
+RUN curl -sLo /dependencies/kustomize                                                                                                 \
     "https://github.com/kubernetes-sigs/kustomize/releases/download/v${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64" \
   && chmod +x /dependencies/kustomize
+
+ARG CLOUD_NUKE_VERSION=v0.1.13
+RUN curl -sLo /dependencies/cloud-nuke                                                                        \
+  "https://github.com/gruntwork-io/cloud-nuke/releases/download/${CLOUD_NUKE_VERSION}/cloud-nuke_linux_amd64" \
+  && chmod +x /dependencies/cloud-nuke
 
 #--------------------------#
 # docker-gcloud-sdk        #
@@ -173,5 +178,6 @@ RUN gcloud --version                \
     && conftest --version           \
     && jq --version                 \
     && yq --version                 \
-    && kustomize version
+    && kustomize version            \
+    && cloud-nuke --version
 
