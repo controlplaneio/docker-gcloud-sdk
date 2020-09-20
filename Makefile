@@ -26,7 +26,7 @@ all: help
 .PHONY: build
 build: ## builds a docker image
 	@echo "+ $@"
-	docker build --tag "${CONTAINER_NAME}" .
+	DOCKER_BUILDKIT=1 docker build --tag "${CONTAINER_NAME}" .
 
 .PHONY: push
 push: ## pushes a docker image
