@@ -30,7 +30,7 @@ RUN mkdir /dependencies /downloads
 WORKDIR /downloads
 
 # Install doctl (Digital Ocean CLI)
-ARG DOCTL_VERSION=1.13.0
+ARG DOCTL_VERSION=1.46.0
 RUN set -euxo pipefail; curl -sL "https://github.com/digitalocean/doctl/releases/download/v${DOCTL_VERSION}/doctl-${DOCTL_VERSION}-linux-amd64.tar.gz" \
     | tar -xz                                                                                                                                          \
   && mv doctl /dependencies/
@@ -42,9 +42,9 @@ RUN set -euxo pipefail; curl -sL "https://github.com/github/hub/releases/downloa
   && mv ./hub-linux-amd64-*/bin/hub /dependencies/
 
 # Install AWS IAM authenticator for EKS
-ARG AWS_AUTHENTICATOR_VERSION=1.11.5
+ARG AWS_AUTHENTICATOR_VERSION="1.17.9/2020-08-04"
 RUN curl -sLo /dependencies/aws-iam-authenticator                                                                                 \
-    "https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_AUTHENTICATOR_VERSION}/2018-12-06/bin/linux/amd64/aws-iam-authenticator" \
+    "https://amazon-eks.s3-us-west-2.amazonaws.com/${AWS_AUTHENTICATOR_VERSION}/bin/linux/amd64/aws-iam-authenticator" \
   && chmod +x /dependencies/aws-iam-authenticator
 
 # Install notary
@@ -54,25 +54,25 @@ RUN curl -sLo /dependencies/notary                                              
   && chmod +x /dependencies/notary
 
 # Install docker-compose
-ARG DOCKER_COMPOSE_VERSION=1.24.0
+ARG DOCKER_COMPOSE_VERSION=1.27.3
 RUN curl -sLo /dependencies/docker-compose                                                                                 \
     "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" \
     && chmod +x /dependencies/docker-compose
 
 # Install goss
-ARG GOSS_VERSION=0.3.7
+ARG GOSS_VERSION=0.3.13
 RUN curl -sLo /dependencies/goss                                                             \
     "https://github.com/aelsabbahy/goss/releases/download/v${GOSS_VERSION}/goss-linux-amd64" \
   && chmod +x /dependencies/goss
 
 # Install conftest
-ARG CONFTEST_VERSION=0.4.2
+ARG CONFTEST_VERSION=0.21.0
 RUN set -euxo pipefail; curl -sL "https://github.com/instrumenta/conftest/releases/download/v${CONFTEST_VERSION}/conftest_${CONFTEST_VERSION}_Linux_x86_64.tar.gz" \
   | tar -xz                                                                                                                                                        \
   && mv conftest /dependencies/
 
 # Install jq
-ARG JQ_VERSION=1.5
+ARG JQ_VERSION=1.6
 RUN curl -sLo /dependencies/jq                                                     \
     "https://github.com/stedolan/jq/releases/download/jq-${JQ_VERSION}/jq-linux64" \
   && chmod +x /dependencies/jq
@@ -99,7 +99,8 @@ RUN curl -sLo /dependencies/cloud-nuke                                          
 #--------------------------#
 FROM debian:buster-slim AS docker-gcloud-sdk
 
-ENV CLOUD_SDK_VERSION 189.0.0
+# 310.0.0 (2020-09-15)
+ENV CLOUD_SDK_VERSION 310.0.0
 
 RUN DEBIAN_FRONTEND=noninteractive apt update &&                                 \
       apt install --assume-yes --no-install-recommends                           \
@@ -118,9 +119,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt update &&                                
       lsb-release                                                                \
       lsof                                                                       \
       make                                                                       \
+      ncat \
       nmap                                                                       \
       nmap-common                                                                \
-      ncat                                                                       \
       openssh-client                                                             \
       parallel                                                                   \
       postgresql-client                                                          \
@@ -148,7 +149,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update &&                                
   && useradd -u 1000 -ms /bin/bash jenkins
 
 # Install bats-core
-ARG BATS_SHA=8789f910812afbf6b87dd371ee5ae30592f1423f
+ARG BATS_SHA=18f574c0deaa3f0299fa7aa1120c61f9fb430ad8
 RUN cd /opt/                                               \
   && git clone https://github.com/bats-core/bats-core.git  \
   && cd bats-core/                                         \
