@@ -26,6 +26,7 @@ all: help
 .PHONY: build
 build: ## builds a docker image
 	@echo "+ $@"
+	docker build --target hadolint .
 	DOCKER_BUILDKIT=1 docker build --tag "${CONTAINER_NAME}" .
 
 .PHONY: push
