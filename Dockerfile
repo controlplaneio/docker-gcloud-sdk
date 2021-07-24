@@ -3,16 +3,16 @@
 #--------------------------#
 FROM docker:18.09.2 AS static-docker-source
 
-#--------------------------#
-# Golang Builder           #
-#--------------------------#
-
-FROM golang:1.12 AS builder
-
-ENV GOPATH /go
-RUN go get github.com/OJ/gobuster
-WORKDIR /go/src/github.com/OJ/gobuster
-RUN make linux
+##--------------------------#
+## Golang Builder           #
+##--------------------------#
+#
+#FROM golang:1.12 AS builder
+#
+#ENV GOPATH /go
+#RUN go get github.com/OJ/gobuster
+#WORKDIR /go/src/github.com/OJ/gobuster
+#RUN make linux
 
 #--------------------------#
 # Dependencies             #
@@ -99,48 +99,49 @@ RUN curl -sLo /dependencies/cloud-nuke                                          
 #--------------------------#
 FROM debian:buster-slim AS docker-gcloud-sdk
 
-# 310.0.0 (2020-09-15)
-ENV CLOUD_SDK_VERSION 310.0.0
+# 349.0.0 (2021-07-20)
+ENV CLOUD_SDK_VERSION 349.0.0
 
-RUN DEBIAN_FRONTEND=noninteractive apt update &&                                 \
-      apt install --assume-yes --no-install-recommends                           \
-      apt-transport-https                                                        \
-      awscli                                                                     \
-      bash                                                                       \
-      bzip2                                                                      \
-      ca-certificates                                                            \
-      curl                                                                       \
-      dnsutils                                                                   \
-      gawk                                                                       \
-      gettext-base                                                               \
-      git                                                                        \
-      gnupg                                                                      \
-      golang                                                                     \
-      lsb-release                                                                \
-      lsof                                                                       \
-      make                                                                       \
-      ncat \
-      nmap                                                                       \
-      nmap-common                                                                \
-      openssh-client                                                             \
-      parallel                                                                   \
-      postgresql-client                                                          \
-      rsync                                                                      \
-      wget                                                                       \
-      xmlstarlet                                                                 \
-                                                                                 \
-  && export CLOUD_SDK_REPO                                                       \
-  && CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"                             \
+RUN DEBIAN_FRONTEND=noninteractive apt update &&                                    \
+      apt install --assume-yes --no-install-recommends                              \
+                                                                                    \
+      apt-transport-https                                                           \
+      awscli                                                                        \
+      bash                                                                          \
+      bzip2                                                                         \
+      ca-certificates                                                               \
+      curl                                                                          \
+      dnsutils                                                                      \
+      gawk                                                                          \
+      gettext-base                                                                  \
+      git                                                                           \
+      gnupg                                                                         \
+      golang                                                                        \
+      lsb-release                                                                   \
+      lsof                                                                          \
+      make                                                                          \
+      ncat                                                                          \
+      nmap                                                                          \
+      nmap-common                                                                   \
+      openssh-client                                                                \
+      parallel                                                                      \
+      postgresql-client                                                             \
+      rsync                                                                         \
+      wget                                                                          \
+      xmlstarlet                                                                    \
+                                                                                    \
+  && export CLOUD_SDK_REPO                                                          \
+  && CLOUD_SDK_REPO="cloud-sdk-$(lsb_release -c -s)"                                \
   && echo "deb https://packages.cloud.google.com/apt $CLOUD_SDK_REPO main" > /etc/apt/sources.list.d/google-cloud-sdk.list \
   && bash -euxo pipefail -c "curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - " \
-                                                                                 \
-  && DEBIAN_FRONTEND=noninteractive                                              \
-       apt update && apt install --assume-yes --no-install-recommends            \
-         google-cloud-sdk=${CLOUD_SDK_VERSION}-0                                 \
-         kubectl                                                                 \
-                                                                                 \
-  && rm -rf /var/lib/apt/lists/*                                                 \
-                                                                                 \
+                                                                                    \
+  && DEBIAN_FRONTEND=noninteractive                                                 \
+       apt update && apt install --assume-yes --no-install-recommends               \
+         google-cloud-sdk=${CLOUD_SDK_VERSION}-0                                    \
+         kubectl                                                                    \
+                                                                                    \
+  && rm -rf /var/lib/apt/lists/*                                                    \
+                                                                                    \
                                                                                     \
   && gcloud config set core/disable_usage_reporting true                            \
   && gcloud config set component_manager/disable_update_check true                  \
@@ -150,10 +151,10 @@ RUN DEBIAN_FRONTEND=noninteractive apt update &&                                
 
 # Install bats-core
 ARG BATS_SHA=18f574c0deaa3f0299fa7aa1120c61f9fb430ad8
-RUN cd /opt/                                               \
-  && git clone https://github.com/bats-core/bats-core.git  \
-  && cd bats-core/                                         \
-  && git checkout ${BATS_SHA}                              \
+RUN cd /opt/                                                                        \
+  && git clone https://github.com/bats-core/bats-core.git                           \
+  && cd bats-core/                                                                  \
+  && git checkout ${BATS_SHA}                                                       \
   && ./install.sh /usr/local
 
 # Copy binaries from dependencies
@@ -162,8 +163,8 @@ COPY --from=dependencies /dependencies/* /usr/local/bin/
 # Copy docker
 COPY --from=static-docker-source /usr/local/bin/docker /usr/local/bin/docker
 
-# Copy built gobuster
-COPY --from=builder /go/src/github.com/OJ/gobuster/build/gobuster-linux-amd64/gobuster /usr/local/bin/
+## Copy built gobuster
+#COPY --from=builder /go/src/github.com/OJ/gobuster/build/gobuster-linux-amd64/gobuster /usr/local/bin/
 
 # Print versions of all installed tools
 RUN gcloud --version                \
